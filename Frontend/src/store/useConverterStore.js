@@ -21,5 +21,11 @@ export const useConverterStore = create((set) => ({
       from: state.to,
       to: state.from
     })),
+  loadConversion: ({ amount, from, to }) =>
+    set({
+      amount: String(amount),
+      from,
+      to
+    }),
   setTravelBudget: (isTravelBudget) => set({ isTravelBudget })
 }));

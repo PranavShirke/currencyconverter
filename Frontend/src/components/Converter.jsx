@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Star, Trash2 } from 'lucide-react';
+import { ArrowLeftRight, RotateCcw, Star, Trash2 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { convertCurrency } from '../api/convert.js';
 import { saveFavorite } from '../api/favorites.js';
@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react';
 export default function Converter({ currencies, onRequireSignIn }) {
   const queryClient = useQueryClient();
   const isRegistered = useUserStore((state) => state.isRegistered);
-  const { amount, from, to, setAmount, setFrom, setTo, swapCurrencies } = useConverterStore();
+  const { amount, from, to, loadConversion, setAmount, setFrom, setTo, swapCurrencies } = useConverterStore();
   const debouncedAmount = useDebouncedValue(amount, 300);
   const numericAmount = Number(debouncedAmount);
   const [saveMessage, setSaveMessage] = useState('');
@@ -173,16 +173,33 @@ export default function Converter({ currencies, onRequireSignIn }) {
                     {entry.convertedAmount} {entry.toCurrency}
                   </p>
                 </div>
-                <button
-                  className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
-                  type="button"
-                  onClick={() => deleteHistoryMutation.mutate(entry.id)}
-                  disabled={deleteHistoryMutation.isPending}
-                  aria-label={`Delete ${entry.amount} ${entry.fromCurrency} to ${entry.toCurrency}`}
-                  title="Delete history entry"
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    className="grid h-8 w-8 place-items-center rounded-md text-slate-400 transition hover:bg-emerald-50 hover:text-accent"
+                    type="button"
+                    onClick={() =>
+                      loadConversion({
+                        amount: entry.amount,
+                        from: entry.fromCurrency,
+                        to: entry.toCurrency
+                      })
+                    }
+                    aria-label={`Load ${entry.amount} ${entry.fromCurrency} to ${entry.toCurrency}`}
+                    title="Load into converter"
+                  >
+                    <RotateCcw size={16} />
+                  </button>
+                  <button
+                    className="grid h-8 w-8 place-items-center rounded-md text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+                    type="button"
+                    onClick={() => deleteHistoryMutation.mutate(entry.id)}
+                    disabled={deleteHistoryMutation.isPending}
+                    aria-label={`Delete ${entry.amount} ${entry.fromCurrency} to ${entry.toCurrency}`}
+                    title="Delete history entry"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
