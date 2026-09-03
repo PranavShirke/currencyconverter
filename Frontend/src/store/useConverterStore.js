@@ -5,6 +5,7 @@ export const useConverterStore = create((set) => ({
   from: 'USD',
   to: 'EUR',
   isTravelBudget: false,
+  travelCurrencies: ['USD', 'EUR', 'GBP', 'JPY', 'AUD'],
   setAmount: (amount) => set({ amount }),
   setFrom: (from) =>
     set((state) => ({
@@ -27,5 +28,11 @@ export const useConverterStore = create((set) => ({
       from,
       to
     }),
+  setTravelCurrency: (index, currency) =>
+    set((state) => ({
+      travelCurrencies: state.travelCurrencies.map((currentCurrency, currentIndex) =>
+        currentIndex === index ? currency : currentCurrency
+      )
+    })),
   setTravelBudget: (isTravelBudget) => set({ isTravelBudget })
 }));

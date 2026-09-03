@@ -11,7 +11,17 @@ import { getApiError } from '../api/client.js';
 
 export default function HomePage() {
   const { openSignIn } = useOutletContext();
-  const { amount, from, to, isTravelBudget, setAmount, setFrom, setTravelBudget } = useConverterStore();
+  const {
+    amount,
+    from,
+    to,
+    isTravelBudget,
+    setAmount,
+    setFrom,
+    setTravelBudget,
+    setTravelCurrency,
+    travelCurrencies
+  } = useConverterStore();
   const currenciesQuery = useQuery({
     queryKey: ['currencies'],
     queryFn: fetchCurrencies
@@ -92,7 +102,17 @@ export default function HomePage() {
         <Converter currencies={currencies} onRequireSignIn={openSignIn} />
       )}
 
-      {isTravelBudget ? <TravelBudgetPanel amount={amount} baseCurrency={from} /> : <TrendChart base={from} target={to} />}
+      {isTravelBudget ? (
+        <TravelBudgetPanel
+          amount={amount}
+          baseCurrency={from}
+          currencies={currencies}
+          selectedCurrencies={travelCurrencies}
+          onCurrencyChange={setTravelCurrency}
+        />
+      ) : (
+        <TrendChart base={from} target={to} />
+      )}
     </div>
   );
 }

@@ -32,12 +32,13 @@ export async function convertCurrency({ userId, amount, from, to }) {
   };
 }
 
-export async function buildTravelBudget({ amount, baseCurrency }) {
-  const targetCurrencies = TRAVEL_CURRENCIES.includes(baseCurrency)
+export async function buildTravelBudget({ amount, baseCurrency, targetCurrencies }) {
+  const defaultTargets = TRAVEL_CURRENCIES.includes(baseCurrency)
     ? TRAVEL_CURRENCIES.map((currency) => (currency === baseCurrency ? 'AUD' : currency))
     : TRAVEL_CURRENCIES;
 
-  const uniqueTargets = [...new Set(targetCurrencies)].filter((currency) => currency !== baseCurrency);
+  const currenciesToConvert = targetCurrencies?.length ? targetCurrencies : defaultTargets;
+  const uniqueTargets = [...new Set(currenciesToConvert)];
 
   if (uniqueTargets.length === 0) {
     throw new AppError(400, 'No travel budget target currencies are available');

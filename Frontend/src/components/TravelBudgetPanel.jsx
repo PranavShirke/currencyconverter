@@ -2,17 +2,47 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchTravelBudget } from '../api/convert.js';
 import { getApiError } from '../api/client.js';
 
-export default function TravelBudgetPanel({ amount, baseCurrency }) {
+export default function TravelBudgetPanel({ amount, baseCurrency, currencies, selectedCurrencies, onCurrencyChange }) {
   const numericAmount = Number(amount);
   const travelQuery = useQuery({
-    queryKey: ['travel-budget', numericAmount, baseCurrency],
-    queryFn: () => fetchTravelBudget({ amount: numericAmount, baseCurrency }),
-    enabled: Number.isFinite(numericAmount) && numericAmount > 0
+    queryKey: ['travel-budget', numericAmount, baseCurrency, selectedCurrencies],
+    queryFn: () =>
+      fetchTravelBudget({
+        amount: numericAmount,
+        baseCurrency,
+        targetCurrencies: selectedCurrencies
+      }),
+    enabled: Number.isFinite(numericAmount) && numericAmount > 0 && selectedCurrencies.length === 5
   });
 
   return (
     <section className="rounded-lg bg-white p-5 shadow-soft">
-      <h2 className="text-base font-semibold text-ink">Travel budgeting</h2>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <h2 className="text-base font-semibold text-ink">Travel budgeting</h2>
+        <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-5">
+          {selectedCurrencies.map((selectedCurrency, index) => (
+            <label key={index} className="block">
+              <span className="mb-1.5 block text-xs font-medium text-slate-500">Currency {index + 1}</span>
+              <select
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-2 text-sm font-semibold text-ink shadow-sm transition hover:border-slate-300 lg:w-32"
+                value={selectedCurrency}
+                onChange={(event) => onCurrencyChange(index, event.target.value)}
+              >
+                {currencies.map((currency) => {
+                  const isSelectedElsewhere =
+                    selectedCurrencies.includes(currency.code) && selectedCurrency !== currency.code;
+
+                  return (
+                    <option key={currency.code} value={currency.code} disabled={isSelectedElsewhere}>
+                      {currency.code}
+                    </option>
+                  );
+                })}
+              </select>
+            </label>
+          ))}
+        </div>
+      </div>
       <div className="mt-4 overflow-hidden rounded-md border border-slate-200">
         <table className="w-full table-fixed border-collapse text-left">
           <thead className="bg-slate-50 text-sm text-slate-500">
