@@ -1,8 +1,8 @@
-import { ArrowLeftRight, Star } from 'lucide-react';
+import { ArrowLeftRight, Star, Trash2 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { convertCurrency } from '../api/convert.js';
 import { saveFavorite } from '../api/favorites.js';
-import { fetchHistory } from '../api/history.js';
+import { clearHistory, deleteHistoryEntry, fetchHistory } from '../api/history.js';
 import { getApiError } from '../api/client.js';
 import { useConverterStore } from '../store/useConverterStore.js';
 import { useUserStore } from '../store/useUserStore.js';
@@ -26,8 +26,8 @@ export default function Converter({ currencies, onRequireSignIn }) {
   });
 
   const historyQuery = useQuery({
-    queryKey: ['history', 10],
-    queryFn: () => fetchHistory(10)
+    queryKey: ['history', 30],
+    queryFn: () => fetchHistory(30)
   });
 
   const favoriteMutation = useMutation({
@@ -39,9 +39,19 @@ export default function Converter({ currencies, onRequireSignIn }) {
     onError: (error) => setSaveMessage(getApiError(error, 'Could not save favorite'))
   });
 
+  const deleteHistoryMutation = useMutation({
+    mutationFn: deleteHistoryEntry,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['history'] })
+  });
+
+  const clearHistoryMutation = useMutation({
+    mutationFn: clearHistory,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['history'] })
+  });
+
   useEffect(() => {
     if (conversionQuery.data) {
-      queryClient.invalidateQueries({ queryKey: ['history', 10] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
     }
   }, [conversionQuery.data, queryClient]);
 
@@ -60,7 +70,7 @@ export default function Converter({ currencies, onRequireSignIn }) {
   }, [result]);
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <section className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_380px]">
       <div className="rounded-lg bg-white p-5 shadow-soft">
         <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-end">
           <CurrencySelect label="From" value={from} currencies={currencies} onChange={setFrom} />
@@ -132,7 +142,19 @@ export default function Converter({ currencies, onRequireSignIn }) {
       </div>
 
       <aside className="rounded-lg bg-white p-5 shadow-soft">
-        <h2 className="text-base font-semibold text-ink">Recent conversions</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-ink">Recent conversions</h2>
+          {historyQuery.data?.length ? (
+            <button
+              className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-slate-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              onClick={() => clearHistoryMutation.mutate()}
+              disabled={clearHistoryMutation.isPending}
+            >
+              Clear
+            </button>
+          ) : null}
+        </div>
         {historyQuery.isLoading ? (
           <div className="mt-4 space-y-3">
             <div className="h-12 animate-pulse rounded-md bg-slate-100" />
@@ -140,15 +162,27 @@ export default function Converter({ currencies, onRequireSignIn }) {
             <div className="h-12 animate-pulse rounded-md bg-slate-100" />
           </div>
         ) : historyQuery.data?.length ? (
-          <ul className="mt-4 divide-y divide-slate-100">
+          <ul className="mt-4 max-h-[390px] divide-y divide-slate-100 overflow-y-auto pr-1">
             {historyQuery.data.map((entry) => (
-              <li key={entry.id} className="py-3">
-                <p className="text-sm font-medium text-ink">
-                  {entry.amount} {entry.fromCurrency} to {entry.toCurrency}
-                </p>
-                <p className="mt-1 text-sm text-slate-500">
-                  {entry.convertedAmount} {entry.toCurrency}
-                </p>
+              <li key={entry.id} className="flex items-start justify-between gap-3 py-3">
+                <div className="min-w-0">
+                  <p className="break-words text-sm font-medium text-ink">
+                    {entry.amount} {entry.fromCurrency} to {entry.toCurrency}
+                  </p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    {entry.convertedAmount} {entry.toCurrency}
+                  </p>
+                </div>
+                <button
+                  className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-slate-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  type="button"
+                  onClick={() => deleteHistoryMutation.mutate(entry.id)}
+                  disabled={deleteHistoryMutation.isPending}
+                  aria-label={`Delete ${entry.amount} ${entry.fromCurrency} to ${entry.toCurrency}`}
+                  title="Delete history entry"
+                >
+                  <Trash2 size={16} />
+                </button>
               </li>
             ))}
           </ul>

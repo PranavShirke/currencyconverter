@@ -8,3 +8,7 @@ export const historyQuerySchema = z.object({
     .max(50, 'Limit cannot exceed 50')
     .default(10)
 });
+
+export const historyIdSchema = z.object({
+  id: z.coerce.number().int().positive('History id must be valid')
+});

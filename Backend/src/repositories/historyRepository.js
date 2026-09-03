@@ -27,10 +27,22 @@ const listStatement = db.prepare(`
   LIMIT ?
 `);
 
+const deleteStatement = db.prepare('DELETE FROM conversion_history WHERE id = ? AND user_id = ?');
+const clearStatement = db.prepare('DELETE FROM conversion_history WHERE user_id = ?');
+
 export function createHistoryEntry({ userId, from, to, amount, convertedAmount, rate }) {
   createStatement.run(userId, from, to, amount, convertedAmount, rate);
 }
 
 export function listHistory(userId, limit) {
   return listStatement.all(userId, limit);
+}
+
+export function deleteHistoryEntry(id, userId) {
+  const result = deleteStatement.run(id, userId);
+  return result.changes > 0;
+}
+
+export function clearHistory(userId) {
+  clearStatement.run(userId);
 }

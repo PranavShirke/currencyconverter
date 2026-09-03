@@ -28,7 +28,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen bg-mist">
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
           <NavLink className="flex min-w-0 items-center gap-3 text-ink" to="/">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-accent text-white">
               <Coins size={21} />
@@ -60,7 +60,7 @@ export default function Layout() {
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <main className="mx-auto max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
         <Outlet context={{ openSignIn: () => setSignInOpen(true) }} />
       </main>
       <SignInModal isOpen={isSignInOpen} onClose={() => setSignInOpen(false)} />

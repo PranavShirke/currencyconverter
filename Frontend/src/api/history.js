@@ -6,3 +6,11 @@ export async function fetchHistory(limit = 10) {
   });
   return response.data;
 }
+
+export async function deleteHistoryEntry(id) {
+  await apiClient.delete(`/history/${id}`);
+}
+
+export async function clearHistory() {
+  await apiClient.delete('/history');
+}

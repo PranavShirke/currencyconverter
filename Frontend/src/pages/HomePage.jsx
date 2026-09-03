@@ -1,3 +1,4 @@
+import { Plane } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { fetchCurrencies } from '../api/currencies.js';
@@ -10,7 +11,7 @@ import { getApiError } from '../api/client.js';
 
 export default function HomePage() {
   const { openSignIn } = useOutletContext();
-  const { amount, from, to, isTravelBudget, setFrom, setTo, setTravelBudget } = useConverterStore();
+  const { amount, from, to, isTravelBudget, setAmount, setFrom, setTravelBudget } = useConverterStore();
   const currenciesQuery = useQuery({
     queryKey: ['currencies'],
     queryFn: fetchCurrencies
@@ -39,15 +40,37 @@ export default function HomePage() {
             Live rates, recent conversions, favorites, and travel budgeting without making an account first.
           </p>
         </div>
-        <label className="flex h-11 items-center gap-3 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-ink shadow-sm">
-          <input
-            className="h-4 w-4 accent-emerald-700"
-            type="checkbox"
-            checked={isTravelBudget}
-            onChange={(event) => setTravelBudget(event.target.checked)}
-          />
+        <button
+          className={`inline-flex h-12 items-center gap-3 rounded-full border px-4 text-sm font-semibold shadow-sm transition ${
+            isTravelBudget
+              ? 'border-emerald-700 bg-accent text-white shadow-emerald-900/10'
+              : 'border-slate-200 bg-white text-ink hover:border-emerald-200 hover:bg-emerald-50'
+          }`}
+          type="button"
+          role="switch"
+          aria-checked={isTravelBudget}
+          onClick={() => setTravelBudget(!isTravelBudget)}
+        >
+          <span
+            className={`grid h-7 w-7 place-items-center rounded-full transition ${
+              isTravelBudget ? 'bg-white/20 text-white' : 'bg-emerald-50 text-accent'
+            }`}
+          >
+            <Plane size={16} />
+          </span>
           Travel budgeting
-        </label>
+          <span
+            className={`relative h-6 w-11 rounded-full transition ${
+              isTravelBudget ? 'bg-white/30' : 'bg-slate-200'
+            }`}
+          >
+            <span
+              className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition ${
+                isTravelBudget ? 'left-6' : 'left-1'
+              }`}
+            />
+          </span>
+        </button>
       </div>
 
       {isTravelBudget ? (
@@ -60,7 +83,7 @@ export default function HomePage() {
                 className="h-12 w-full rounded-md border border-slate-200 px-3 text-base font-semibold shadow-sm"
                 inputMode="decimal"
                 value={amount}
-                onChange={(event) => useConverterStore.getState().setAmount(event.target.value)}
+                onChange={(event) => setAmount(event.target.value)}
               />
             </label>
           </div>
