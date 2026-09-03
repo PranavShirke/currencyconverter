@@ -1,4 +1,4 @@
-import { Save } from 'lucide-react';
+import { Info, RotateCcw, Save } from 'lucide-react';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTravelBudget } from '../api/convert.js';
@@ -10,9 +10,11 @@ export default function TravelBudgetPanel({
   currencies,
   selectedCurrencies,
   onCurrencyChange,
+  onResetSet,
   onSaveSet
 }) {
   const [saveMessage, setSaveMessage] = useState('');
+  const [showResetInfo, setShowResetInfo] = useState(false);
   const numericAmount = Number(amount);
   const travelQuery = useQuery({
     queryKey: ['travel-budget', numericAmount, baseCurrency, selectedCurrencies],
@@ -32,7 +34,7 @@ export default function TravelBudgetPanel({
           <h2 className="text-base font-semibold text-ink">Travel budgeting</h2>
           {saveMessage ? <p className="mt-1 text-sm text-slate-500">{saveMessage}</p> : null}
         </div>
-        <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-[repeat(5,8rem)_auto]">
+        <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-[repeat(5,8rem)_auto_auto]">
           {selectedCurrencies.map((selectedCurrency, index) => (
             <label key={index} className="block">
               <span className="mb-1.5 block text-xs font-medium text-slate-500">Currency {index + 1}</span>
@@ -66,6 +68,30 @@ export default function TravelBudgetPanel({
             <Save size={16} />
             Save set
           </button>
+          <div className="relative flex self-end">
+            <button
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-ink shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-accent"
+              type="button"
+              onClick={onResetSet}
+            >
+              <RotateCcw size={16} />
+              Reset
+            </button>
+            <button
+              className="ml-1 grid h-10 w-10 place-items-center rounded-md text-slate-500 transition hover:bg-slate-100 hover:text-ink"
+              type="button"
+              onClick={() => setShowResetInfo((value) => !value)}
+              aria-label="Reset set details"
+              title="Reset set details"
+            >
+              <Info size={16} />
+            </button>
+            {showResetInfo ? (
+              <div className="absolute right-0 top-12 z-10 w-56 rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-600 shadow-soft">
+                Resets to USD, EUR, GBP, JPY, AUD.
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
       <div className="mt-4 overflow-hidden rounded-md border border-slate-200">

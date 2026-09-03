@@ -20,6 +20,7 @@ export default function HomePage() {
     setFrom,
     setTravelBudget,
     setTravelCurrency,
+    resetTravelSet,
     saveTravelSet,
     travelCurrencies
   } = useConverterStore();
@@ -110,6 +111,7 @@ export default function HomePage() {
           currencies={currencies}
           selectedCurrencies={travelCurrencies}
           onCurrencyChange={setTravelCurrency}
+          onResetSet={resetTravelSet}
           onSaveSet={saveTravelSet}
         />
       ) : (

@@ -66,6 +66,10 @@ export const useConverterStore = create((set) => ({
         currentIndex === index ? currency : currentCurrency
       )
     })),
+  resetTravelSet: () =>
+    set({
+      travelCurrencies: DEFAULT_TRAVEL_CURRENCIES
+    }),
   saveTravelSet: () =>
     set((state) => {
       if (typeof localStorage !== 'undefined') {
