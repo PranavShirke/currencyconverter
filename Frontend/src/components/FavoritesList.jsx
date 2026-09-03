@@ -1,10 +1,14 @@
-import { Trash2 } from 'lucide-react';
+import { ArrowUpRight, Trash2 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { deleteFavorite, fetchFavorites } from '../api/favorites.js';
 import { getApiError } from '../api/client.js';
+import { useConverterStore } from '../store/useConverterStore.js';
 
 export default function FavoritesList() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const loadPair = useConverterStore((state) => state.loadPair);
   const favoritesQuery = useQuery({
     queryKey: ['favorites'],
     queryFn: fetchFavorites
@@ -33,27 +37,45 @@ export default function FavoritesList() {
   }
 
   return (
-    <ul className="space-y-3">
+    <ul className="grid gap-3 lg:grid-cols-2">
       {favoritesQuery.data.map((favorite) => (
         <li
           key={favorite.id}
-          className="flex items-center justify-between gap-3 rounded-lg bg-white p-4 shadow-soft"
+          className="flex items-center justify-between gap-4 rounded-lg bg-white p-4 shadow-soft"
         >
-          <div>
+          <div className="min-w-0">
             <p className="font-semibold text-ink">
               {favorite.base} to {favorite.target}
             </p>
-            <p className="mt-1 text-sm text-slate-500">Saved pair</p>
+            <p className="mt-1 text-sm text-slate-500">
+              1 {favorite.base} ={' '}
+              {new Intl.NumberFormat(undefined, { maximumSignificantDigits: 8 }).format(favorite.convertedAmount)}{' '}
+              {favorite.target}
+            </p>
+            <p className="mt-1 text-xs text-slate-400">Live rate</p>
           </div>
-          <button
-            className="grid h-10 w-10 place-items-center rounded-md text-slate-500 transition hover:bg-red-50 hover:text-red-600"
-            type="button"
-            onClick={() => deleteMutation.mutate(favorite.id)}
-            aria-label={`Delete ${favorite.base} to ${favorite.target}`}
-            title="Delete favorite"
-          >
-            <Trash2 size={18} />
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              className="inline-flex h-10 items-center gap-2 rounded-md bg-accent px-3 text-sm font-semibold text-white transition hover:bg-emerald-800"
+              type="button"
+              onClick={() => {
+                loadPair({ from: favorite.base, to: favorite.target });
+                navigate('/');
+              }}
+            >
+              Use
+              <ArrowUpRight size={16} />
+            </button>
+            <button
+              className="grid h-10 w-10 place-items-center rounded-md text-slate-500 transition hover:bg-red-50 hover:text-red-600"
+              type="button"
+              onClick={() => deleteMutation.mutate(favorite.id)}
+              aria-label={`Delete ${favorite.base} to ${favorite.target}`}
+              title="Delete favorite"
+            >
+              <Trash2 size={18} />
+            </button>
+          </div>
         </li>
       ))}
     </ul>

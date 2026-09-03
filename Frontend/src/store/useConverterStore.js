@@ -28,6 +28,12 @@ export const useConverterStore = create((set) => ({
       from,
       to
     }),
+  loadPair: ({ from, to }) =>
+    set({
+      from,
+      to,
+      isTravelBudget: false
+    }),
   setTravelCurrency: (index, currency) =>
     set((state) => ({
       travelCurrencies: state.travelCurrencies.map((currentCurrency, currentIndex) =>

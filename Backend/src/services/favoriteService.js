@@ -1,8 +1,22 @@
 import { addFavorite, deleteFavorite, listFavorites } from '../repositories/favoritesRepository.js';
+import { getLatestRate } from './rateProvider.js';
 import { AppError } from '../utils/errors.js';
 
-export function getFavorites(userId) {
-  return listFavorites(userId);
+export async function getFavorites(userId) {
+  const favorites = listFavorites(userId);
+
+  return Promise.all(
+    favorites.map(async (favorite) => {
+      const rate = await getLatestRate(favorite.base, favorite.target);
+
+      return {
+        ...favorite,
+        amount: 1,
+        convertedAmount: rate,
+        rate
+      };
+    })
+  );
 }
 
 export function createFavorite({ userId, base, target }) {

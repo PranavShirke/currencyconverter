@@ -1,7 +1,11 @@
 import { createFavorite, getFavorites, removeFavorite } from '../services/favoriteService.js';
 
-export function listFavoritesController(req, res) {
-  res.json(getFavorites(req.userId));
+export async function listFavoritesController(req, res, next) {
+  try {
+    res.json(await getFavorites(req.userId));
+  } catch (error) {
+    next(error);
+  }
 }
 
 export function addFavoriteController(req, res) {
