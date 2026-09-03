@@ -1,11 +1,37 @@
 import { create } from 'zustand';
 
+const DEFAULT_TRAVEL_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD'];
+const SAVED_TRAVEL_SET_KEY = 'currency-converter-travel-set';
+
+function getSavedTravelCurrencies() {
+  try {
+    if (typeof localStorage === 'undefined') {
+      return DEFAULT_TRAVEL_CURRENCIES;
+    }
+
+    const savedValue = localStorage.getItem(SAVED_TRAVEL_SET_KEY);
+    const savedCurrencies = savedValue ? JSON.parse(savedValue) : null;
+
+    if (
+      Array.isArray(savedCurrencies) &&
+      savedCurrencies.length === 5 &&
+      new Set(savedCurrencies).size === savedCurrencies.length
+    ) {
+      return savedCurrencies;
+    }
+  } catch {
+    return DEFAULT_TRAVEL_CURRENCIES;
+  }
+
+  return DEFAULT_TRAVEL_CURRENCIES;
+}
+
 export const useConverterStore = create((set) => ({
   amount: '100',
   from: 'USD',
   to: 'EUR',
   isTravelBudget: false,
-  travelCurrencies: ['USD', 'EUR', 'GBP', 'JPY', 'AUD'],
+  travelCurrencies: getSavedTravelCurrencies(),
   setAmount: (amount) => set({ amount }),
   setFrom: (from) =>
     set((state) => ({
@@ -40,5 +66,17 @@ export const useConverterStore = create((set) => ({
         currentIndex === index ? currency : currentCurrency
       )
     })),
-  setTravelBudget: (isTravelBudget) => set({ isTravelBudget })
+  saveTravelSet: () =>
+    set((state) => {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(SAVED_TRAVEL_SET_KEY, JSON.stringify(state.travelCurrencies));
+      }
+
+      return {};
+    }),
+  setTravelBudget: (isTravelBudget) =>
+    set((state) => ({
+      isTravelBudget,
+      travelCurrencies: isTravelBudget ? getSavedTravelCurrencies() : state.travelCurrencies
+    }))
 }));

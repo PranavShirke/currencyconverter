@@ -20,6 +20,7 @@ export default function HomePage() {
     setFrom,
     setTravelBudget,
     setTravelCurrency,
+    saveTravelSet,
     travelCurrencies
   } = useConverterStore();
   const currenciesQuery = useQuery({
@@ -109,6 +110,7 @@ export default function HomePage() {
           currencies={currencies}
           selectedCurrencies={travelCurrencies}
           onCurrencyChange={setTravelCurrency}
+          onSaveSet={saveTravelSet}
         />
       ) : (
         <TrendChart base={from} target={to} />

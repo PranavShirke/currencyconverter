@@ -1,8 +1,18 @@
+import { Save } from 'lucide-react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchTravelBudget } from '../api/convert.js';
 import { getApiError } from '../api/client.js';
 
-export default function TravelBudgetPanel({ amount, baseCurrency, currencies, selectedCurrencies, onCurrencyChange }) {
+export default function TravelBudgetPanel({
+  amount,
+  baseCurrency,
+  currencies,
+  selectedCurrencies,
+  onCurrencyChange,
+  onSaveSet
+}) {
+  const [saveMessage, setSaveMessage] = useState('');
   const numericAmount = Number(amount);
   const travelQuery = useQuery({
     queryKey: ['travel-budget', numericAmount, baseCurrency, selectedCurrencies],
@@ -18,8 +28,11 @@ export default function TravelBudgetPanel({ amount, baseCurrency, currencies, se
   return (
     <section className="rounded-lg bg-white p-5 shadow-soft">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <h2 className="text-base font-semibold text-ink">Travel budgeting</h2>
-        <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-5">
+        <div>
+          <h2 className="text-base font-semibold text-ink">Travel budgeting</h2>
+          {saveMessage ? <p className="mt-1 text-sm text-slate-500">{saveMessage}</p> : null}
+        </div>
+        <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-[repeat(5,8rem)_auto]">
           {selectedCurrencies.map((selectedCurrency, index) => (
             <label key={index} className="block">
               <span className="mb-1.5 block text-xs font-medium text-slate-500">Currency {index + 1}</span>
@@ -41,6 +54,18 @@ export default function TravelBudgetPanel({ amount, baseCurrency, currencies, se
               </select>
             </label>
           ))}
+          <button
+            className="inline-flex h-10 items-center justify-center gap-2 self-end rounded-md bg-accent px-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+            type="button"
+            onClick={() => {
+              onSaveSet();
+              setSaveMessage('Travel set saved');
+              window.setTimeout(() => setSaveMessage(''), 1800);
+            }}
+          >
+            <Save size={16} />
+            Save set
+          </button>
         </div>
       </div>
       <div className="mt-4 overflow-hidden rounded-md border border-slate-200">
